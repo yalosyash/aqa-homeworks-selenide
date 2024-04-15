@@ -1,15 +1,11 @@
-import org.checkerframework.checker.units.qual.A;
+import com.codeborne.selenide.ElementsCollection;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
-
-import java.text.SimpleDateFormat;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
-import java.util.Calendar;
-
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.*;
@@ -20,36 +16,63 @@ class TestV1 {
         open("http://localhost:9999");
     }
 
-    private String getDate () {
+    private String getDate() {
+        return getDate(3);
+    }
+
+    private String getDate(int countOfDays) {
         LocalDate currentDate = LocalDate.now();
         DateTimeFormatter pattern = DateTimeFormatter.ofPattern("dd.MM.yyyy");
-        return currentDate.plusDays(16).format(pattern);
+        return currentDate.plusDays(countOfDays).format(pattern);
+    }
+
+    private void cleanForm(WebElement element) {
+        $(element).sendKeys(Keys.chord(Keys.CONTROL, "a"));
+        $(element).sendKeys(Keys.BACK_SPACE);
     }
 
     private final WebElement inputCity = $("[data-test-id=city] .input__control");
+    private final ElementsCollection selectOfCity = $$(".menu-item");
     private final WebElement inputDate = $("[data-test-id=date] .input__control");
     private final WebElement inputName = $("[data-test-id=name] .input__control");
     private final WebElement inputPhone = $("[data-test-id=phone] .input__control");
-
-
+    private final WebElement checkboxAgreement = $("[data-test-id=agreement]");
+    private final WebElement submit = $(".button_theme_alfa-on-white");
+    private final WebElement calendar = $(".icon-button_theme_alfa-on-white");
+    private final ElementsCollection weekRight = $$(".calendar__arrow");
+    private final WebElement selectDate = $("[data-day]");
+    private final WebElement notification = $("[data-test-id=notification]");
+    private final WebElement textNotice = $(byText("Успешно!"));
 
     //Задание 1 --------------------------------------------------------------------------------------------------------
     @Test
-    void shouldOpen() throws InterruptedException {
+    void shouldSuccess() {
 
-        $$(".input__control").first().setValue("Москва");
+        $(inputCity).setValue("Москва");
+        cleanForm(inputDate);
+        $(inputDate).setValue(getDate(4));
+        $(inputName).setValue("Иванов Иван");
+        $(inputPhone).setValue("+12345678901");
+        $(checkboxAgreement).click();
+        $(submit).click();
+        $(notification).shouldBe(visible, Duration.ofSeconds(15));
+        $(textNotice).shouldBe(visible);
+    }
 
-        $("[data-test-id=date] .input__control").sendKeys(Keys.chord(Keys.CONTROL, "a"));
-        $("[data-test-id=date] .input__control").sendKeys(Keys.BACK_SPACE);
-        $("[data-test-id=date] .input__control").setValue(getDate());
+    //Задание 2 --------------------------------------------------------------------------------------------------------
+    @Test
+    void shouldSuccessWithHint() {
 
-        $("[data-test-id=name] .input__control").setValue("Иванов Иван");
-
-        $("[data-test-id=phone] .input__control").setValue("+12345678901");
-
-        $("[data-test-id=agreement]").click();
-        $(".button_theme_alfa-on-white").click();
-        $("[data-test-id=notification]").shouldBe(visible, Duration.ofSeconds(15));
-        $(byText("Успешно!")).shouldBe(visible);
+        $(inputCity).setValue("бург");
+        $$(selectOfCity).get(1).click();
+        $(calendar).click();
+        $$(weekRight).get(3).click();
+        $(selectDate).click();
+        $(inputName).setValue("Иванов Иван");
+        $(inputPhone).setValue("+12345678901");
+        $(checkboxAgreement).click();
+        $(submit).click();
+        $(notification).shouldBe(visible, Duration.ofSeconds(15));
+        $(textNotice).shouldBe(visible);
     }
 }
