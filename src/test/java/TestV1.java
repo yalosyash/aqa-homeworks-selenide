@@ -63,8 +63,8 @@ class TestV1 {
     @Test
     void shouldSuccessWithHint() {
 
-        $(inputCity).setValue("бург");
-        $$(selectOfCity).get(1).click();
+        $(inputCity).setValue("бу");
+        $$(selectOfCity).get(2).click();
         $(calendar).click();
         $$(weekRight).get(3).click();
         $(selectDate).click();
